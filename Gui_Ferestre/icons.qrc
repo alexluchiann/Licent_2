@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>Icons/icons8-remove-48.png</file>
+    <file>Icons/icons8-glasses-16.png</file>
+    <file>Icons/icons8-ansible-48.png</file>
+    <file>Icons/icons8-add-file-50.png</file>
+    <file>Icons/icons8-add-48.png</file>
+    <file>Icons/icons8-skip-to-start-office-l/icons8-skip-to-start-40.png</file>
+  </qresource>
+</RCC>
