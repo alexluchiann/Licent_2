@@ -10,6 +10,8 @@ class Logic_Gui(Ui_MainWindow):
         self.Show_VMBtn_2.clicked.connect(self.load_table)
         self.list_vm=self.conn_openstack.List_All_VM()
 
+
+
     def load_table(self):
         self.table_VM_Info.setRowCount(len(self.list_vm))
         row=0
@@ -22,9 +24,6 @@ class Logic_Gui(Ui_MainWindow):
             self.table_VM_Info.setItem(row, 4, QtWidgets.QTableWidgetItem("B"))
             self.table_VM_Info.setItem(row, 5, QtWidgets.QTableWidgetItem("C"))
             row += 1
-
-
-
 
 
 app=QtWidgets.QApplication(sys.argv)

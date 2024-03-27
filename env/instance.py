@@ -8,10 +8,10 @@ class OpenstackConnect:
         self.keypair = 'licenta'
         self.list_images=list(self.conn.image.images())
         self.list_flavors=list(self.conn.list_flavors())
-        ####
         server = self.conn.compute.find_server('Test_2')
         metadata = server.metadata
         print(self.conn.compute.find_server('Test_2'))
+
 
     def List_All_VM(self):
         list_VM = [VM_Info for VM_Info in self.conn.compute.servers()]
@@ -47,6 +47,7 @@ class OpenstackConnect:
         except Exception as e:
             print(e)
 
+
     def get_dictionary_of_iamges(self):
         dict_images={}
         for image in self.list_images:
@@ -60,5 +61,16 @@ class OpenstackConnect:
         return dict_flavors
 
 
+
+
+
+
 #app = OpenstackConnect()
 #print(app.get_dictionary_of_iamges())
+#print("________________________________________________________________________________________")
+#app.create_network("Test_Vlan_22","Descriereeee",subnet_name="subnet_19",subnet_cidr="10.0.0.0/24")
+#app.create_router("N")
+#print("________________________________________________________________________________________")
+#for i in app.list_networks():
+    #print(str(i) + '\n')
+#2ded1ced-c0bb-4ba3-bcfe-98021a27f281': 'Ubuntu Jammy'
