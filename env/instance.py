@@ -10,7 +10,7 @@ class OpenstackConnect:
         self.list_flavors=list(self.conn.list_flavors())
         server = self.conn.compute.find_server('Test_2')
         metadata = server.metadata
-        print(self.conn.compute.find_server('Test_2'))
+
 
 
     def List_All_VM(self):
