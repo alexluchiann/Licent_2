@@ -6,16 +6,16 @@ class OpenstackConnect:
         self.conn = openstack.connect(cloud='openstack')
         self.network = self.conn.network.find_network('licenta-alex')
         self.keypair = 'licenta'
-        self.list_images=list(self.conn.image.images())
-        self.list_flavors=list(self.conn.list_flavors())
+        self.list_images=self.conn.image.images()
+        self.list_flavors=self.conn.list_flavors()
         server = self.conn.compute.find_server('Test_2')
         metadata = server.metadata
 
-
-
     def List_All_VM(self):
-        list_VM = [VM_Info for VM_Info in self.conn.compute.servers()]
-        return list_VM
+        for i in self.conn.list_flavors():
+            print(i)
+        #list_VM = [VM_Info for VM_Info in self.conn.compute.servers()]
+        #eturn list_VM
 
     def Delete_VM(self, name_VM):
         try:
@@ -33,7 +33,7 @@ class OpenstackConnect:
             if Vm.name == name:
                 print("The name already exists")
                 return
-
+#AAAAAAAAAAAAAAAA
         try:
             server = self.conn.compute.create_server(
                 name=name,
@@ -65,7 +65,8 @@ class OpenstackConnect:
 
 
 
-#app = OpenstackConnect()
+app = OpenstackConnect()
+app.List_All_VM()
 #print(app.get_dictionary_of_iamges())
 #print("________________________________________________________________________________________")
 #app.create_network("Test_Vlan_22","Descriereeee",subnet_name="subnet_19",subnet_cidr="10.0.0.0/24")
