@@ -12,6 +12,5 @@ class security_groups_operations(openstack_network_operations):
         return groups
 
 
+
 app = security_groups_operations()
-for i in app.list_all_security_groups():
-    print(i.id)
