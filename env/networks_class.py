@@ -64,4 +64,4 @@ class openstack_network_operations(OpenstackConnect):
          return router
 
 
-network_operations = openstack_network_operations()
+#network_operations = openstack_network_operations()
