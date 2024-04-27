@@ -8,13 +8,19 @@
 # OS_CLOUD=openstack or --os-cloud=openstack
 clouds:
   openstack:
+
     auth:
+
       auth_url: https://os.tuiasi.ro:5000
-      username: "alexandru.luchian"
-      project_id: 2373938729c040c8a86d867105655bad
-      password: "rveBGsAZSKEn9Eq"
-      project_name: "alexandru.luchian"
-      user_domain_name: "Default"
+
+      application_credential_id: "3da46711b2dd4275b596eb4c808a654f"
+      application_credential_secret: "QMVOo2QDCYnDSxdFNgZLvBewaLId5uVNRioJnz9hhI7jPKICszlPz-2y1IugTXjxosffXsD9Aeid2zb21djXJw"
+
+
+
     region_name: "RegionOne"
+
+
     interface: "public"
     identity_api_version: 3
+    auth_type: "v3applicationcredential"

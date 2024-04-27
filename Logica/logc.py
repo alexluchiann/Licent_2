@@ -8,7 +8,7 @@ class Logic_Gui(Ui_MainWindow):
         self.conn_openstack=OpenstackConnect()
         self.setupUi(window)
         self.Show_VMBtn_2.clicked.connect(self.load_table)
-        self.list_vm=self.conn_openstack.List_All_VM()
+        self.list_vm=self.conn_openstack.list_All_VM()
 
 
 
