@@ -1,0 +1,13 @@
+---
+- name: Send Hello World message
+  hosts: openstack_instances
+  tasks:
+    - name: Send Message
+      ansible.builtin.debug:
+        msg: "Hello World from Ansible to !"
+
+    - name: Send Second Message
+      ansible.builtin.debug:
+        msg: "Hello world nr 2"
+
+        
