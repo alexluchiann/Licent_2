@@ -69,6 +69,9 @@ class openstack_network_operations(OpenstackConnect):
                 external_networks.append(network)
         return external_networks
 
+    #
+    #   Functions for routers
+    #
 
     def list_routers(self):
          router=[rout for rout in self.conn.network.routers()]
@@ -144,6 +147,36 @@ class openstack_network_operations(OpenstackConnect):
             print("Router '{}' or network '{}' not found.".format(router_name, network_name))
 
 
+    def disconect_router_from_network(self,router_name,network_name):
+        router = None
+        network = None
+
+        for rout in self.list_routers():
+            if rout.name == router_name:
+                router = rout
+                break
+
+        for net in self.list_networks:
+            if net.name == network_name:
+                network = net
+                break
+
+        if router and network:
+            try:
+                # Get subnets associated with the network
+                subnets = self.conn.network.subnets(network_id=network.id)
+                if subnets:
+                    # Get the ID of the first subnet
+                    subnet_id = next(subnets).id
+                    # Disconnect the router from the network
+                    self.conn.network.remove_interface_from_router(router, subnet_id=subnet_id)
+                    print("Router '{}' was disconnected from the '{}' network.".format(router_name, network_name))
+                else:
+                    print("No subnets found for network '{}'.".format(network_name))
+            except Exception as e:
+                print("Failed to disconnect router from network:", e)
+        else:
+            print("Router '{}' or network '{}' not found.".format(router_name, network_name))
 
 network_operations = openstack_network_operations()
 
@@ -155,4 +188,4 @@ network_operations = openstack_network_operations()
 #network_operations.delete_router("Dummy network")
 #network_operations.create_network("Dummy Network","Dumy Test")
 #network_operations.create_router("Dummy Router","5abea629-f544-4811-b374-b45022590f1b")
-network_operations.connect_router_to_network("Dummy Router","Dummy Network__v3")
+#network_operations.connect_router_to_network("Dummy Router","Dummy Network__v3")
