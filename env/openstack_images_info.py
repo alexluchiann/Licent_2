@@ -1,10 +1,11 @@
-from env.instance import OpenstackConnect
+import openstack
 
-
-class openstack_images_info(OpenstackConnect):
+class openstack_images_info:
     def __init__(self):
-        super().__init__()
-        self.image_data={
+        self.conn = openstack.connect(cloud='openstack')
+
+
+        self.image_data = {
             "afc098f7-9013-47fc-a73d-a75e31e7d337": "Ubuntu Xenial",
             "e1754e5d-3d67-4a91-bdd9-4f61cbe63ca4": "Fedora CoreOS 35",
             "6fb46d64-319f-430c-aeba-f3aee11c058c": "Sahara Vanilla Ubuntu",
@@ -25,7 +26,7 @@ class openstack_images_info(OpenstackConnect):
             "2bb4eb89-c989-4e13-b2a8-eba5af542819": "Ubuntu Focal"
         }
 
-        self.usernames_dict={
+        self.usernames_dict = {
             "afc098f7-9013-47fc-a73d-a75e31e7d337": {"name": "Ubuntu Xenial", "username": "ubuntu"},
             "e1754e5d-3d67-4a91-bdd9-4f61cbe63ca4": {"name": "Fedora CoreOS 35", "username": "core"},
             "6fb46d64-319f-430c-aeba-f3aee11c058c": {"name": "Sahara Vanilla Ubuntu", "username": "ubuntu"},
@@ -63,4 +64,7 @@ class openstack_images_info(OpenstackConnect):
         for im_name in self.get_list_images_info():
             names.append(im_name.id)
         return names
+
+ap = openstack_images_info()
+ap.get_list_of_images_id()
 

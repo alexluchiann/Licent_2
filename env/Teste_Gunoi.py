@@ -1,4 +1,4 @@
-from ansible_management.ansible_management import ansible_management
+from ansible_playbooks.ansible_management import ansible_management
 
 
 print("___________________________________________________________________-")

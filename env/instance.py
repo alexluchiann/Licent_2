@@ -24,6 +24,8 @@ class OpenstackConnect:
             print(" Instance {} doesen't exist".format(name_VM))
 
     def add_node(self, name, flavor_id, image_id, network_name):
+        'name flavor_id  image_id network_name'
+
 
         list_VM = self.list_All_VM()
         network = None
@@ -144,7 +146,4 @@ class OpenstackConnect:
             dict_flavors[image.id] = image.list_flavors
         return dict_flavors
 
-
-app = OpenstackConnect()
-#app.add_node("Notesss_testsss","m1.small","CentOS 7","licenta")
 
