@@ -2,8 +2,7 @@ import openstack
 
 class openstack_images_info:
     def __init__(self):
-        self.conn = openstack.connect(cloud='openstack')
-
+        self.conn=openstack.connect(cloud='openstack')
 
         self.image_data = {
             "afc098f7-9013-47fc-a73d-a75e31e7d337": "Ubuntu Xenial",
@@ -58,13 +57,12 @@ class openstack_images_info:
             names.append(im_name.name)
         return names
 
-
     def get_list_of_images_id(self):
         names = []
         for im_name in self.get_list_images_info():
             names.append(im_name.id)
         return names
 
-ap = openstack_images_info()
-ap.get_list_of_images_id()
+
+
 

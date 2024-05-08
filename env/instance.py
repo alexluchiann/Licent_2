@@ -97,33 +97,6 @@ class OpenstackConnect:
         print("The avalibele network is {} ".format(ip_avabil))
 
 
-        '''
-        print("Instance '{}' not found.".format(instance_name))
-
-
-        floating_ips = self.conn.network.ips()
-        floating_ip_adr=floating_ips.ips[0]
-        #floating_ip_address = ip.floating_ip_address
-        print(floating_ip_adr)
-
-        try:
-
-            print("Numee {} ".format(instance.id))
-
-            #Aici e problema mare
-
-
-            self.conn.compute.add_floating_ip_to_server(instance.name , floating_ip_address)
-            
-            #!!!!!!!!!
-
-            print("Floating IP '{}' associated with instance '{}'.".format(floating_ip_address, instance_name))
-        except Exception as e:
-
-            print("Instance name: {}".format(instance_name))
-            print("Floating IP address: {}".format(floating_ip_address))
-            print("Error message: {}".format(e))
-            '''
     def list_floating_ips(self):
 
         floatin_ips=[]
@@ -134,16 +107,10 @@ class OpenstackConnect:
         return floatin_ips
 
 
-    def get_dictionary_of_iamges(self):
-        dict_images = {}
-        for image in self.list_images:
-            dict_images[image.id] = image.name
-        return dict_images
 
-    def get_dictionary_of_flavors(self):
-        dict_flavors = {}
-        for image in self.list_images:
-            dict_flavors[image.id] = image.list_flavors
-        return dict_flavors
-
-
+app = OpenstackConnect()
+targ=[]
+for i in app.list_All_VM():
+    targ.append(i)
+print(targ[6].addresses)
+print(targ[6])
