@@ -26,7 +26,6 @@ class OpenstackConnect:
     def add_node(self, name, flavor_id, image_id, network_name):
         'name flavor_id  image_id network_name'
 
-
         list_VM = self.list_All_VM()
         network = None
         for VM in list_VM:
@@ -108,9 +107,4 @@ class OpenstackConnect:
 
 
 
-app = OpenstackConnect()
-targ=[]
-for i in app.list_All_VM():
-    targ.append(i)
-print(targ[6].addresses)
-print(targ[6])
+

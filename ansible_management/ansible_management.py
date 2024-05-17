@@ -17,16 +17,18 @@ class ansible_management(volumes_management):
         image_info_tuple = []
         for node in targets:
             instance_id = node.id
-            tupl = lambda x, y, z: (x, y, z)
+            tupl = lambda x, y, z, t: (x, y, z, t)
             if self.has_attached_volumes(instance_id):
                 volume_image = self.get_volume_image_id(instance_id)
                 username = self.image_info.usernames_dict.get(volume_image, {}).get("username")
-                image_info_tuple.append(tupl(node.name , volume_image , username))
+                instance_floating_ip=self.get_floating_ip_of_instance(instance_id)
+                image_info_tuple.append(tupl(node.name, volume_image, username,instance_floating_ip))
 
             else:
                 image_id=node.image.get("id")
                 username = self.image_info.usernames_dict.get(image_id, {}).get("username")
-                image_info_tuple.append(tupl(node.name , image_id , username))
+                instance_floating_ip = self.get_floating_ip_of_instance(instance_id)
+                image_info_tuple.append(tupl(node.name , image_id , username , instance_floating_ip))
 
         return image_info_tuple
 
@@ -36,11 +38,20 @@ class ansible_management(volumes_management):
             print("The file {} does not exits !!! ".format(file_path))
             return
         target_nodes = self.manage_inventory_file(targets)
+        list_of_nodes_with_ip=[]
+
+    #Makes a list with instnaces that have a flating ip
+        for prob in target_nodes:
+            if prob[3] is None:
+                continue
+            else:
+                list_of_nodes_with_ip.append(prob)
 
 
-
-
-
+        with open(file_path,'a+') as file:
+            file.write('\n')
+            for node in list_of_nodes_with_ip:
+                file.write("{} ansible_user={}\n".format(node[3] , node[2]))
 
 
     def run_ansible_file(self, playbook_path,inventory_path, private_key_path):
@@ -55,20 +66,34 @@ class ansible_management(volumes_management):
         except subprocess.CalledProcessError as e:
             print(f"Error executing Ansible playbook: {e}")
 
+    def delete_file_contnet(self,input_file):
+        with open(input_file, 'r') as f:
+            lines = f.readlines()
+
+            # Find the first line that starts with '['
+        first_line_with_bracket = None
+        for line in lines:
+            if line.startswith('['):
+                first_line_with_bracket = line
+                break
+
+        # Rewrite the file with only the first line starting with '['
+        with open(input_file, 'w') as f:
+
+            if first_line_with_bracket:
+                f.write(first_line_with_bracket)
+        print("The file is clean")
 
 app=ansible_management()
 targ=[]
 for i in app.list_All_VM():
     targ.append(i)
 
+#app.rewrite_inventory_file('/home/alex/Licenta_2024/python_app/ansible_playbooks/inventory.ini',targ)
+#app.delete_file_contnet('/home/alex/Licenta_2024/python_app/ansible_playbooks/inventory.ini')
 
-for i in app.manage_inventory_file(targ):
-    print(i)
 
-
-'''
-app.run_ansible_file("/home/alex/Licenta_2024/python_app/ansible_playbooks/hello_world.yml",
+app.run_ansible_file("/home/alex/Licenta_2024/OpenStack_v2/ansivle_playbooks/testt_2.yml",
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/inventory.ini",
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/licenta.pem")
-'''
 
