@@ -7,6 +7,7 @@ class Logic_Gui():
     def __init__(self):
         self.conn_openstack=OpenstackConnect()
         #self.setupUi(window)
+
        # self.Show_VMBtn_2.clicked.connect(self.load_table)
         self.list_vm=self.conn_openstack.list_All_VM()
 '''
@@ -37,3 +38,4 @@ app.exec_()
 '''
 
 app=Logic_Gui()
+
