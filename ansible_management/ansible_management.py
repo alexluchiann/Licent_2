@@ -1,12 +1,11 @@
 import os
 import subprocess
 
-from env.instance import OpenstackConnect
 from volumes_management import Volumes_Management
+from openstack_images_info import Openstack_images_info
 class ansible_management(Volumes_Management):
     def __init__(self):
-        from openstack_images_info import OpenstackImagesInfo
-        self.image_info = OpenstackImagesInfo()
+        self.image_info = Openstack_images_info()
         super().__init__()
 
     def manage_inventory_file(self, targets):
@@ -76,7 +75,7 @@ class ansible_management(Volumes_Management):
 
 app = ansible_management()
 
-'''
+
 targ=[]
 for i in app.list_All_VM():
     targ.append(i)
@@ -88,4 +87,4 @@ for i in app.list_All_VM():
 app.run_ansible_file("/home/alex/Licenta_2024/OpenStack_v2/ansivle_playbooks/testt_2.yml",
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/inventory.ini",
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/licenta.pem")
-'''
+

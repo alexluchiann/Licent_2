@@ -2,19 +2,15 @@ import sys
 from Gui_Ferestre.MainWindow import *
 from env.instance import OpenstackConnect
 from ansible_management.volumes_management import Volumes_Management
-
-
-
+from ansible_management.Delete_me import Test
 class Logic_Gui(Ui_MainWindow):
     def __init__(self,window):
         self.conn_openstack=OpenstackConnect()
         self.os_info= Volumes_Management()
-        #self.exemplu = openstack_images_info()
         self.setupUi(window)
         self.Show_VMBtn_2.clicked.connect(self.load_table)
         self.list_vm=self.conn_openstack.list_All_VM()
-
-
+        self.mama = Test()
 
 
     def load_table(self):
@@ -29,7 +25,7 @@ class Logic_Gui(Ui_MainWindow):
             self.table_VM_Info.setItem(row, 4, QtWidgets.QTableWidgetItem("B"))
             self.table_VM_Info.setItem(row, 5, QtWidgets.QTableWidgetItem("C"))
             row += 1
-        #print(self.exemplu.usernames_dict)
+        print(self.mama.Mama())
 
 
 

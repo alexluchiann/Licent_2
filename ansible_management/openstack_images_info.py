@@ -1,9 +1,10 @@
 import openstack
 from env.instance import OpenstackConnect
-class openstack_images_info:
-    def __init__(self) :
-        self.conn_openstack=OpenstackConnect()
 
+
+class Openstack_images_info(OpenstackConnect):
+    def __init__(self):
+        super().__init__()
         self.image_data = {
             "afc098f7-9013-47fc-a73d-a75e31e7d337": "Ubuntu Xenial",
             "e1754e5d-3d67-4a91-bdd9-4f61cbe63ca4": "Fedora CoreOS 35",
@@ -29,8 +30,10 @@ class openstack_images_info:
             "afc098f7-9013-47fc-a73d-a75e31e7d337": {"name": "Ubuntu Xenial", "username": "ubuntu"},
             "e1754e5d-3d67-4a91-bdd9-4f61cbe63ca4": {"name": "Fedora CoreOS 35", "username": "core"},
             "6fb46d64-319f-430c-aeba-f3aee11c058c": {"name": "Sahara Vanilla Ubuntu", "username": "ubuntu"},
-            "f5607735-b75a-434b-a671-33def3564fc1": {"name": "Windows 2019 Zabbix Agent", "username": "Administrator or admin"},
-            "7cbedf53-25f6-4d60-9f77-06c1b04e53d2": {"name": "Windows Server 2012", "username": "Administrator or admin"},
+            "f5607735-b75a-434b-a671-33def3564fc1": {"name": "Windows 2019 Zabbix Agent",
+                                                     "username": "Administrator or admin"},
+            "7cbedf53-25f6-4d60-9f77-06c1b04e53d2": {"name": "Windows Server 2012",
+                                                     "username": "Administrator or admin"},
             "0959c81e-fa77-4ffb-be21-46e7bc4168af": {"name": "CentOS 7 Zabbix Agent", "username": "centos"},
             "f760b718-ded2-468f-9213-c27efc2d499a": {"name": "Windows 2019", "username": "Administrator or admin"},
             "4b54ac1a-8256-48d6-ad39-be61f8770655": {"name": "Ubuntu Zabbix Server", "username": "ubuntu"},
@@ -46,13 +49,12 @@ class openstack_images_info:
             "2bb4eb89-c989-4e13-b2a8-eba5af542819": {"name": "Ubuntu Focal", "username": "ubuntu"}
         }
 
-
     def get_list_images_info(self):
         imagess = [img for img in self.conn.compute.images()]
         return imagess
 
     def get_list_of_images_name(self):
-        names=[]
+        names = []
         for im_name in self.get_list_images_info():
             names.append(im_name.name)
         return names
@@ -62,9 +64,4 @@ class openstack_images_info:
         for im_name in self.get_list_images_info():
             names.append(im_name.id)
         return names
-
-
-
-
-
 
