@@ -105,6 +105,3 @@ class OpenstackConnect:
             floatin_ips.append(ips.floating_ip_address)
         return floatin_ips
 
-
-
-

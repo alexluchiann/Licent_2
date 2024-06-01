@@ -1,8 +1,8 @@
 import openstack
-
+from env.instance import OpenstackConnect
 class openstack_images_info:
-    def __init__(self):
-        self.conn=openstack.connect(cloud='openstack')
+    def __init__(self) :
+        self.conn_openstack=OpenstackConnect()
 
         self.image_data = {
             "afc098f7-9013-47fc-a73d-a75e31e7d337": "Ubuntu Xenial",
@@ -62,6 +62,8 @@ class openstack_images_info:
         for im_name in self.get_list_images_info():
             names.append(im_name.id)
         return names
+
+
 
 
 
