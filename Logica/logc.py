@@ -6,13 +6,13 @@ from ansible_management.Delete_me import Test
 class Logic_Gui(Ui_MainWindow):
     def __init__(self,window):
         self.conn_openstack=OpenstackConnect()
+        self.ex = Test()
         self.os_info= Volumes_Management()
         self.setupUi(window)
         self.Show_VMBtn_2.clicked.connect(self.load_table)
         self.list_vm=self.conn_openstack.list_All_VM()
-        self.mama = Test()
 
-
+'''
     def load_table(self):
         self.table_VM_Info.setRowCount(len(self.list_vm))
         row=0
@@ -39,3 +39,4 @@ ui=Logic_Gui(MainWindowss)
 
 MainWindowss.show()
 app.exec_()
+'''

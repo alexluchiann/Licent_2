@@ -1,7 +1,6 @@
 import openstack
 from env.instance import OpenstackConnect
 
-
 class Openstack_images_info(OpenstackConnect):
     def __init__(self):
         super().__init__()
