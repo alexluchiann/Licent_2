@@ -1,11 +1,10 @@
 from env.instance import OpenstackConnect
-from ansible_management import openstack_images_info
+from openstack_images_info import openstack_images_info
 
 
 class Volumes_Management(openstack_images_info):
     def __init__(self):
         super().__init__()
-
 
     def has_attached_volumes(self, instance_id):
         try:
