@@ -12,22 +12,19 @@ class Logic_Gui(Ui_MainWindow):
         self.Show_VMBtn_2.clicked.connect(self.load_table)
         self.list_vm=self.conn_openstack.list_All_VM()
 
-'''
+
     def load_table(self):
         self.table_VM_Info.setRowCount(len(self.list_vm))
         row=0
         for VM in self.list_vm[::-1]:
             print(VM)
             self.table_VM_Info.setItem(row, 0, QtWidgets.QTableWidgetItem(str(VM.name)))
-            #self.table_VM_Info.setItem(row, 1, QtWidgets.QTableWidgetItem(str(self.os_info.get_os_with_instance_id(VM.id))))
+            self.table_VM_Info.setItem(row, 1, QtWidgets.QTableWidgetItem(str(self.os_info.get_os_with_instance_id(VM.id))))
             self.table_VM_Info.setItem(row, 2, QtWidgets.QTableWidgetItem(str(VM.flavor.id)))
             self.table_VM_Info.setItem(row, 3, QtWidgets.QTableWidgetItem("A"))
             self.table_VM_Info.setItem(row, 4, QtWidgets.QTableWidgetItem("B"))
             self.table_VM_Info.setItem(row, 5, QtWidgets.QTableWidgetItem("C"))
             row += 1
-        print(self.mama.Mama())
-
-
 
 
 
@@ -39,4 +36,4 @@ ui=Logic_Gui(MainWindowss)
 
 MainWindowss.show()
 app.exec_()
-'''
+
