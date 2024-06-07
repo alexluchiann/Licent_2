@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>Icons/2519033371586787815-32.png</file>
+    <file>Icons/icons8-garbage-48.png</file>
+    <file>Icons/3419968011553667176-32.png</file>
+    <file>Icons/icons8-upload-to-cloud-48.png</file>
+    <file>Icons/icons8-garbage-48.png</file>
+    <file>Icons/resized_router(1).png</file>
+    <file>Icons/resized_protect(1).png</file>
+    <file>Icons/resized_monitor(1).png</file>
+    <file>Icons/resized_ip_address(1).png</file>
+    <file>Icons/resized_global_network(1).png</file>
+    <file>Icons/resized_ansible(2).png</file>
+    <file>Icons/protect.png</file>
+    <file>Icons/monitor.png</file>
+    <file>Icons/ip-address(1).png</file>
+    <file>Icons/ip-address.png</file>
+    <file>Icons/icons8-router-symbol-50.png</file>
+    <file>Icons/global-network.png</file>
+    <file>Icons/18005236061684047474-48.png</file>
+    <file>Icons/17011559491548336260-48.png</file>
+    <file>Icons/icons8-remove-48.png</file>
+    <file>Icons/icons8-glasses-16.png</file>
+    <file>Icons/icons8-ansible-48.png</file>
+    <file>Icons/icons8-add-file-50.png</file>
+    <file>Icons/icons8-add-48.png</file>
+  </qresource>
+</RCC>
