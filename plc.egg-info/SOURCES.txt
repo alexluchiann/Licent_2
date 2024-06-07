@@ -1,0 +1,10 @@
+README.md
+setup.py
+ansible_management/__init__.py
+ansible_management/ansible_management.py
+ansible_management/openstack_images_info.py
+ansible_management/volumes_management.py
+plc.egg-info/PKG-INFO
+plc.egg-info/SOURCES.txt
+plc.egg-info/dependency_links.txt
+plc.egg-info/top_level.txt
