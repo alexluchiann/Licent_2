@@ -66,6 +66,3 @@ class Volumes_Management(Openstack_images_info):
             image_id = instance.image['id']
             return self.image_data[image_id]
 
-app =Volumes_Management()
-
-print(app.get_os_with_instance_id('e2d3fc07-8670-455f-a39f-177f839cf807'))

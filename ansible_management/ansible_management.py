@@ -58,6 +58,7 @@ class ansible_management(Volumes_Management):
         except subprocess.CalledProcessError as e:
             print(f"Error executing Ansible playbook: {e}")
 
+
     def delete_file_content(self, input_file):
         with open(input_file, 'r') as f:
             lines = f.readlines()
@@ -73,9 +74,45 @@ class ansible_management(Volumes_Management):
                 f.write(first_line_with_bracket)
         print("The file is clean")
 
+    def print_files_in_directory(self,relative_dir):
+        """
+        Print all filenames in the specified directory relative to the project root.
+
+        Parameters:
+        relative_dir (str): The directory relative to the project root.
+
+        Returns:
+        None
+        """
+        project_root = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the absolute path to the target directory
+        target_dir = os.path.join(project_root, relative_dir)
+
+        # Check if the directory exists
+        if not os.path.isdir(target_dir):
+            print(f"Directory does not exist: {target_dir}")
+            return []
+
+        # List to store filenames
+        filenames = []
+
+        # Get all files in the target directory
+        list_files = os.listdir(target_dir)
+        for file in list_files:
+            filenames.append(file)
+
+        # Print all filenames
+        print(f"Files in {relative_dir}: {filenames}")
+
+        return filenames
+
+
+
+
 app = ansible_management()
-
-
+app.print_files_in_directory('ansible_playbooks')
+'''
 targ=[]
 for i in app.list_All_VM():
     targ.append(i)
@@ -88,3 +125,4 @@ app.run_ansible_file("/home/alex/Licenta_2024/OpenStack_v2/ansivle_playbooks/tes
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/inventory.ini",
                      "/home/alex/Licenta_2024/python_app/ansible_playbooks/licenta.pem")
 
+'''
