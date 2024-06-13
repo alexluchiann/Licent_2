@@ -9,11 +9,17 @@ class OpenstackConnect:
         self.keypair = 'licenta'
         self.list_images = list(self.conn.image.images())
         self.list_flavors = list(self.conn.list_flavors())
-        self.list_networks = self.conn.network.networks()
+        self.list_networks = list(self.conn.network.networks())
 
     def list_All_VM(self):
         list_VM = [VM_Info for VM_Info in self.conn.compute.servers()]
         return list_VM
+
+    def number_of_vm(self):
+        numb=0
+        for i in self.list_All_VM():
+            numb=numb+1
+        return numb
 
     def delete_VM(self, name_VM):
         try:
@@ -23,15 +29,10 @@ class OpenstackConnect:
         except Exception as e:
             print(" Instance {} doesen't exist".format(name_VM))
 
-    def add_node(self, name, flavor_id, image_id, network_name):
-        'name flavor_id  image_id network_name'
-
+    def add_node(self, name, flavor_id, image_id, network_name, description=None):
         list_VM = self.list_All_VM()
+        existing_names = {vm.name for vm in list_VM}
         network = None
-        for VM in list_VM:
-            if VM.name == name:
-                print(" The name is already used ")
-                return
 
         for net in self.list_networks:
             if net.name == network_name:
@@ -39,8 +40,19 @@ class OpenstackConnect:
                 break
 
         if network is None:
-            print("Nu exista netwrokul dat")
+            print("Network does not exist")
             return
+
+        def generate_new_name(base_name):
+            suffix = 1
+            new_name = f"{base_name}_{suffix}"
+            while new_name in existing_names:
+                suffix += 1
+                new_name = f"{base_name}_{suffix}"
+            return new_name
+
+        if name in existing_names:
+            name = generate_new_name(name)
 
         try:
             print(network.name)
@@ -50,18 +62,15 @@ class OpenstackConnect:
                 image_id=self.conn.image.find_image(image_id).id,
                 networks=[{"uuid": network.id}],
                 key_name=self.keypair,
-                security_groups=[{"name": "default"}]
+                security_groups=[{"name": "default"}],
+                description=description
             )
-            print(" Name of the server is {} ".format(name))
+            print(f"Name of the server is {name}")
 
         except Exception as e:
-            print(" An error ocurred wile creting the server", e)
+            print("An error occurred while creating the server", e)
 
-    #
-    # Fucntions for creating and associating floating ip's
-    #
 
-    #This function is used only with external networks
     def create_floating_ip(self, network_name):
         try:
             network = None
@@ -95,9 +104,14 @@ class OpenstackConnect:
         ip_avabil=self.conn.network.find_available_ip()
         print("The avalibele network is {} ".format(ip_avabil))
 
+    def get_image_update_date(self, image_name):
+        image = self.conn.image.find_image(image_name)
+        if image:
+            return image.updated_at
+        else:
+            return "Image not found"
 
     def list_floating_ips(self):
-
         floatin_ips=[]
         floating_ips = self.conn.network.ips()
         for ips in floating_ips:

@@ -9,7 +9,6 @@ class ansible_management(Volumes_Management):
         super().__init__()
 
     def manage_inventory_file(self, targets):
-        from volumes_management import Volumes_Management
 
         image_info_tuple = []
         for node in targets:
@@ -74,44 +73,55 @@ class ansible_management(Volumes_Management):
                 f.write(first_line_with_bracket)
         print("The file is clean")
 
-    def print_files_in_directory(self,relative_dir):
-        """
-        Print all filenames in the specified directory relative to the project root.
 
-        Parameters:
-        relative_dir (str): The directory relative to the project root.
+    def get_right_path(self):
+        target_dir = 'ansible_playbooks'
+        current_working_directory = os.getcwd()
+        parent_directory = os.path.abspath(os.path.join(current_working_directory, os.pardir))
+        abs_target_path = os.path.abspath(os.path.join(parent_directory, target_dir))
+        return abs_target_path
+    def get_ansible_playbooks_files(self):
+        list_file=[]
+        list_fil = os.listdir(self.get_right_path())
+        for file in list_fil:
+            if file.endswith(('.yml', '.yaml')):
+                list_file.append(file)
+        return list_file
 
-        Returns:
-        None
-        """
-        project_root = os.path.dirname(os.path.abspath(__file__))
+    def get_ansible_playbooks_files_path(self):
+        list_file = []
+        path = self.get_right_path()
+        file_path = None
+        list_fil = os.listdir(self.get_right_path())
+        for file in list_fil:
+            if file.endswith(('.yml', '.yaml')):
+                file_path = path + '/'+file
+                list_fil.append(file_path)
+        return list_file
 
-        # Construct the absolute path to the target directory
-        target_dir = os.path.join(project_root, relative_dir)
+    def get_inventory(self):
+        path = self.get_right_path()
+        inv_file = path+'/inventory.ini'
+        inventory_path = os.path.join(path,inv_file)
+        return inventory_path
 
-        # Check if the directory exists
-        if not os.path.isdir(target_dir):
-            print(f"Directory does not exist: {target_dir}")
-            return []
+    def get_private_key_file(self):
+        path = self.get_right_path()
+        key_file = path + '/licenta.pem'
+        private_key_path = os.path.join(path, key_file)
+        return private_key_path
 
-        # List to store filenames
-        filenames = []
+    def delete_file_from_ansible_playbook(self,target):
+        abs_target_path=self.get_right_path()
+        list_file = os.listdir(self.get_right_path())
+        if target in list_file:
+            os.remove(os.path.join(abs_target_path, target))
+            print(f"File {target} was deleted ")
+        else:
+            print("Nu functioneaza")
 
-        # Get all files in the target directory
-        list_files = os.listdir(target_dir)
-        for file in list_files:
-            filenames.append(file)
-
-        # Print all filenames
-        print(f"Files in {relative_dir}: {filenames}")
-
-        return filenames
-
-
-
-
-app = ansible_management()
-app.print_files_in_directory('ansible_playbooks')
+app =ansible_management()
+print(app.get_private_key_file())
 '''
 targ=[]
 for i in app.list_All_VM():

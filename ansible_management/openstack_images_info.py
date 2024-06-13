@@ -48,6 +48,39 @@ class Openstack_images_info(OpenstackConnect):
             "2bb4eb89-c989-4e13-b2a8-eba5af542819": {"name": "Ubuntu Focal", "username": "ubuntu"}
         }
 
+        self.os_data = [
+    ("Arch Linux", "2.00 GB"),
+    ("CentOS 7", "8.00 GB"),
+    ("CentOS 7 Zabbix Agent", "10.00 GB"),
+    ("CentOS 8", "10.00 GB"),
+    ("CentOS Stream 9", "10.00 GB"),
+    ("CirrOS", "112.00 MB"),
+    ("Debian 11", "2.00 GB"),
+    ("Fedora 38", "5.00 GB"),
+    ("Fedora CoreOS 35", "10.00 GB"),
+    ("fedora-coreos-latest", "1.58 GB"),
+    ("openSUSE-Leap-15.2", "10.00 GB"),
+    ("Sahara Vanilla Ubuntu", "5.80 GB"),
+    ("Ubuntu Focal", "2.20 GB"),
+    ("Ubuntu Jammy", "2.20 GB"),
+    ("Ubuntu Xenial", "300.75 MB"),
+    ("Ubuntu Zabbix Server", "10.00 GB"),
+    ("Windows 2019", "15.00 GB"),
+    ("Windows 2019 Zabbix Agent", "16.00 GB"),
+    ("Windows Server 2012", "12.20 GB"),
+    ("Cirros_vbutnaru", "112.00 MB")
+    ]
+
+        self.flavors_list = [
+    ("m1.tiny", 1, "512 MB"),
+    ("m1.small", 1, "2 GB"),
+    ("m1.medium", 2, "4 GB"),
+    ("g1.1xMedium", 2, "4 GB"),
+    ("m1.large", 4, "8 GB"),
+    ("m1.xlarge", 8, "16 GB")
+    ]
+
+
     def get_list_images_info(self):
         imagess = [img for img in self.conn.compute.images()]
         return imagess

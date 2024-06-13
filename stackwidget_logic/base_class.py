@@ -2,14 +2,14 @@ from time import time, sleep
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QObject
-from PyQt5.QtWidgets import QTableWidget, QCheckBox
+from PyQt5.QtWidgets import QTableWidget, QCheckBox, QMessageBox
 
 from Gui_Ferestre.index import Ui_MainWindow
 from env.instance import OpenstackConnect
 
 
 class BaseClassGui(Ui_MainWindow):
-    def __init__(self, stackedWidget, page_widget, button_widget, table_widget, columns_headers=[' Check ', 'Name', 'Operating System', 'IP Address', 'Flavor']):
+    def __init__(self, stackedWidget, page_widget, button_widget, table_widget):
         super().__init__()
         self.stackedWidget = stackedWidget
         self.page_widget = page_widget
@@ -18,17 +18,31 @@ class BaseClassGui(Ui_MainWindow):
         self.openstack = OpenstackConnect()
         self.button_widget.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_widget))
         self.list_of_instances=self.openstack.list_All_VM()
-        self.columns_headers = columns_headers
 
+
+    def warning_box(self,descript=None):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle('Warning')
+        msg_box.setText('Are you sure you want to delete all the ' + descript + ' ?')
+        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg_box.setDefaultButton(QMessageBox.No)
+        return_value = msg_box.exec_()
+
+        if return_value == QMessageBox.Yes:
+            print("You pressed Yes")
+            return True
+        else:
+            print("You pressed No")
+            return False
 
     def populate_table(self):
-        self.clean_table()
+        columns_headers = [' Check ', 'Name', 'Operating System', 'IP Address', 'Flavor']
         self.table_widget.setRowCount(len(self.list_of_instances))
-        self.table_widget.setColumnCount(len(self.columns_headers))
-        self.table_widget.setHorizontalHeaderLabels(self.columns_headers)
+        self.table_widget.setColumnCount(len(columns_headers))
+        self.table_widget.setHorizontalHeaderLabels(columns_headers)
 
         self.table_widget.setColumnWidth(0, 45)
-        for col, header in enumerate(self.columns_headers):
+        for col, header in enumerate(columns_headers):
             self.table_widget.setColumnWidth(col + 1, 350)
 
         for row in range(len(self.list_of_instances)):
@@ -43,15 +57,3 @@ class BaseClassGui(Ui_MainWindow):
             self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(VM.name)))
             self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(VM.name)))
 
-    def clean_table(self):
-        row_to_clean=[]
-        for row in range(self.table_widget.rowCount()):
-            checkbox = self.table_widget.cellWidget(row, 0)
-            if checkbox.isChecked():
-                row_to_clean.append(row)
-
-        for row in sorted(row_to_clean, reverse=True):
-            instance_name = self.table_widget.item(row, 1).text()
-            self.table_widget.removeRow(row)
-        sleep(2)
-        print("A<A<A<AA")

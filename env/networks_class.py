@@ -4,19 +4,8 @@ class openstack_network_operations(OpenstackConnect):
     def __init__(self):
         super().__init__()
 
-    #
-    #   Functions for netwroks
-    #
-    def list_networks(self):
-        network = [net for net in self.conn.network.networks()]
-        return network
-
+        self.network_list = list(self.conn.network.networks())
     def create_network(self,net_name,net_description,is_shared=False,is_admi_state_up=True,subnet_name=None,subnet_cidr=None):
-        print("Create network ")
-        for network in self.list_networks:
-            if network.name == net_name:
-                print("The name Already exists ,pick another one ")
-                return
         #
         try:
             new_network = self.conn.network.create_network(
@@ -43,7 +32,7 @@ class openstack_network_operations(OpenstackConnect):
 
     def delete_network(self,network_name):
         target_network=None
-        for net in self.list_networks:
+        for net in self.network_list:
             if net.name == network_name:
                 target_network=net
                 break
@@ -64,7 +53,7 @@ class openstack_network_operations(OpenstackConnect):
 
     def list_external_netwroks(self):
         external_networks = []
-        for network in self.list_networks:
+        for network in self.network_list:
             if network.is_router_external:
                 external_networks.append(network)
         return external_networks
@@ -124,7 +113,7 @@ class openstack_network_operations(OpenstackConnect):
                 break
 
         # Find the network
-        for net in self.list_networks:
+        for net in self.network_list:
             if net.name == network_name:
                 network = net
                 break
@@ -156,7 +145,7 @@ class openstack_network_operations(OpenstackConnect):
                 router = rout
                 break
 
-        for net in self.list_networks:
+        for net in self.network_list:
             if net.name == network_name:
                 network = net
                 break
@@ -178,7 +167,6 @@ class openstack_network_operations(OpenstackConnect):
         else:
             print("Router '{}' or network '{}' not found.".format(router_name, network_name))
 
-network_operations = openstack_network_operations()
 
 
 #network_operations.create_network("Dummy Network__v3","Dumy Test",subnet_name="subnet_1",subnet_cidr="192.168.1.0/24")

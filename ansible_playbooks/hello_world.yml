@@ -9,3 +9,4 @@
     - name: Send Second Message
       ansible.builtin.debug:
         msg: "Hello world nr 2"
+
