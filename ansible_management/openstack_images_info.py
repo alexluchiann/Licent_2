@@ -72,13 +72,14 @@ class Openstack_images_info(OpenstackConnect):
     ]
 
         self.flavors_list = [
-    ("m1.tiny", 1, "512 MB"),
-    ("m1.small", 1, "2 GB"),
-    ("m1.medium", 2, "4 GB"),
-    ("g1.1xMedium", 2, "4 GB"),
-    ("m1.large", 4, "8 GB"),
-    ("m1.xlarge", 8, "16 GB")
+    ("m1.tiny", 1, "512 MB","1 GB"),
+    ("m1.small", 1, "2 GB","20 GB"),
+    ("m1.medium", 2, "4 GB","40 GB"),
+    ("g1.1xMedium", 2, "4 GB","40 GB"),
+    ("m1.large", 4, "8 GB","80 GB"),
+    ("m1.xlarge", 8, "16 GB","160 GB")
     ]
+
 
 
     def get_list_images_info(self):

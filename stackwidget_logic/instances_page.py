@@ -1,6 +1,11 @@
+import contextlib
 import os
 import shutil
-from PyQt5.QtWidgets import QTableWidget, QCheckBox, QFileDialog, QWidget, QMessageBox, QDesktopWidget
+import io
+import subprocess
+import sys
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QTableWidget, QCheckBox, QFileDialog, QWidget, QMessageBox, QDesktopWidget, QPlainTextEdit
 from PyQt5 import QtWidgets
 
 from ansible_management.ansible_management import ansible_management
@@ -9,50 +14,65 @@ from base_class import BaseClassGui
 
 class InstancePage(BaseClassGui):
 
-    def __init__(self, stackedWidget, page_widget, button_widget, table_widget, table_widget_2, combo_box):
+    def __init__(self, stackedWidget, page_widget, button_widget, table_widget, table_widget_2, combo_box, output_label):
         super().__init__(stackedWidget, page_widget, button_widget, table_widget)
         self.table_widget_2 = table_widget_2
         self.combo_box = combo_box
+        self.output_label = output_label
         self.ans_management = ansible_management()
         self.populate_combo_box()
 
-    # Populate Tables
+    def populate_table(self):
+        self.list_of_instances = self.openstack.list_All_VM()
+        columns_headers = ['Check', 'Name', 'Operating System', 'IP Address', 'Flavor']
+        self.table_widget.setRowCount(len(self.list_of_instances))
+        self.table_widget.setColumnCount(len(columns_headers))
+        self.table_widget.setHorizontalHeaderLabels(columns_headers)
+
+        self.table_widget.setColumnWidth(0, 45)
+        for col, header in enumerate(columns_headers):
+            self.table_widget.setColumnWidth(col + 1, 350)
+
+        for row in range(len(self.list_of_instances)):
+            self.table_widget.setRowHeight(row, 40)
+
+        for row, VM in enumerate(self.list_of_instances[::-1]):
+            checkbox = QCheckBox()
+            self.table_widget.setCellWidget(row, 0, checkbox)
+            self.table_widget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(VM.name)))
+
     def populate_table_2(self):
         columns_headers_2 = ['Check', 'Playbook name', 'Description']
-        self.table_widget_2.setRowCount(len(self.ans_management.get_ansible_playbooks_files()))
+        playbooks = self.ans_management.get_ansible_playbooks_files()
+        self.table_widget_2.setRowCount(len(playbooks))
         self.table_widget_2.setColumnCount(len(columns_headers_2))
         self.table_widget_2.setHorizontalHeaderLabels(columns_headers_2)
 
         self.table_widget_2.setColumnWidth(0, 45)
         self.table_widget_2.setColumnWidth(1, 450)
         self.table_widget_2.setColumnWidth(2, 910)
-        for row in range(len(self.list_of_instances)):
-            self.table_widget_2.setRowHeight(row, 40)
 
-        for row in range(len(self.ans_management.get_ansible_playbooks_files())):
+        for row, playbook in enumerate(playbooks):
             checkbox = QCheckBox()
             self.table_widget_2.setCellWidget(row, 0, checkbox)
-            self.table_widget_2.setItem(row, 1, QtWidgets.QTableWidgetItem(str(self.ans_management.get_ansible_playbooks_files()[row])))
+            self.table_widget_2.setItem(row, 1, QtWidgets.QTableWidgetItem(str(playbook)))
 
-    # Delete from tables
-    def delete_checked_lines_instnaces(self):
-        rows_to_delete = []
-        for row in range(self.table_widget.rowCount()):
-            checkbox = self.table_widget.cellWidget(row, 0)
-            if checkbox.isChecked():
-                rows_to_delete.append(row)
+    def delete_checked_lines_instances(self):
+        rows_to_delete = [row for row in range(self.table_widget.rowCount())
+                          if self.table_widget.cellWidget(row, 0).isChecked()]
 
         for row in sorted(rows_to_delete, reverse=True):
             instance_name = self.table_widget.item(row, 1).text()
             self.openstack.delete_VM(instance_name)
             self.table_widget.removeRow(row)
+        self.refresh_instances_table()
 
     def delete_checked_lines_scripts(self):
-        rows_to_delete = []
-        for row in range(self.table_widget_2.rowCount()):
-            checkbox = self.table_widget_2.cellWidget(row, 0)
-            if checkbox.isChecked():
-                rows_to_delete.append(row)
+        rows_to_delete = [row for row in range(self.table_widget_2.rowCount())
+                          if self.table_widget_2.cellWidget(row, 0).isChecked()]
 
         for row in sorted(rows_to_delete, reverse=True):
             script_name = self.table_widget_2.item(row, 1).text()
@@ -60,48 +80,40 @@ class InstancePage(BaseClassGui):
             self.table_widget_2.removeRow(row)
         self.populate_combo_box()
 
-    def delete_all_instnaces(self):
-        resp = self.warning_box('instances')
-        if resp is True:
+    def delete_all_instances(self):
+        if self.warning_box('instances'):
+            rows_to_delete = []
             for row in range(self.table_widget.rowCount()):
                 instance_name = self.table_widget.item(row, 1).text()
-                self.openstack.delete_VM(instance_name)
-                print(instance_name)
-            self.table_widget.setRowCount(0)
-        else:
-            print("NU ai apasat pe nimic")
-            return
+                print(f"Deleting instance: {instance_name}")
+                try:
+                    self.openstack.delete_VM(instance_name)
+                    rows_to_delete.append(row)
+                except Exception as e:
+                    print(f"Error deleting instance {instance_name}: {e}")
+
+            for row in sorted(rows_to_delete, reverse=True):
+                self.table_widget.removeRow(row)
+
+            print("All instances deleted successfully.")
+        self.refresh_instances_table()
 
     def delete_all_scripts(self):
-        resp = self.warning_box('scripts')
-        if resp is True:
-            delete_rows = []
-            for row in range(self.table_widget_2.rowCount()):
-                item = self.table_widget_2.item(row, 1)
-                if item is not None:
-                    scripts_name = item.text()
-                    delete_rows.append(row)
-                    print(scripts_name)
-                    self.ans_management.delete_file_from_ansible_playbook(scripts_name)
-                else:
-                    print(f"No script name found in row {row}")
+        if self.warning_box('scripts'):
+            delete_rows = [row for row in range(self.table_widget_2.rowCount())
+                           if self.table_widget_2.item(row, 1) is not None]
 
             for row in sorted(delete_rows, reverse=True):
+                script_name = self.table_widget_2.item(row, 1).text()
+                self.ans_management.delete_file_from_ansible_playbook(script_name)
                 self.table_widget_2.removeRow(row)
+            self.populate_combo_box()
 
-            self.table_widget.setRowCount(0)
-        else:
-            print("NU ai apasat pe nimic")
-            return
-        self.populate_combo_box()
-
-    # Add Ansible Scripts
-    def add_ansible_Scrips(self):
+    def add_ansible_scripts(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
         temp_widget = QWidget()
-
         file_dialog = QFileDialog(temp_widget)
         file_dialog.setWindowTitle("Open Files or Project")
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
@@ -113,79 +125,94 @@ class InstancePage(BaseClassGui):
         dialog_rect = file_dialog.geometry()
         dialog_rect.moveCenter(screen_rect.center())
         file_dialog.setGeometry(dialog_rect)
-        start_directory = os.path.expanduser('~')
-        file_dialog.setDirectory(start_directory)
-
+        file_dialog.setDirectory(os.path.expanduser('~'))
         file_dialog.setNameFilter("All Files (*);;Text Files (*.txt);;Python Files (*.py);;YAML Files (*.yml *.yaml)")
 
         if file_dialog.exec_():
             file_names = file_dialog.selectedFiles()
-            print(f'Selected files or directories: {file_names}')
-            if file_names is not None:
-                for file in file_names:
-                    if file.endswith(('.yml', '.yaml')):
-                        shutil.copy(file, self.ans_management.get_right_path())
-                        print(file)
-                return file_names
+            for file in file_names:
+                if file.endswith(('.yml', '.yaml')):
+                    shutil.copy(file, self.ans_management.get_right_path())
+            return file_names
         return []
 
     def populate_combo_box(self):
         self.combo_box.clear()
-        for script in self.ans_management.get_ansible_playbooks_files():
-            self.combo_box.addItem(script)
+        playbooks = self.ans_management.get_ansible_playbooks_files()
+        self.combo_box.addItems(playbooks)
 
     def run_script(self):
         try:
             script_name = self.combo_box.currentText()
-            target_script = None
-
-            for script in self.ans_management.get_ansible_playbooks_files_path():
-                if os.path.basename(script) == script_name:
-                    target_script = script
-                    break
+            playbooks_paths = self.ans_management.get_ansible_playbooks_files_path()
+            target_script = next((script for script in playbooks_paths if os.path.basename(script) == script_name),
+                                 None)
 
             if not target_script:
                 QMessageBox.warning(self.page_widget, "Warning", "Selected script not found.")
                 return
 
-            print(self.ans_management.get_inventory())
-            target_instances_names = []
-            for row in range(self.table_widget.rowCount()):
-                checkbox = self.table_widget.cellWidget(row, 0)
-                if checkbox.isChecked():
-                    target_instances_names.append(self.table_widget.item(row, 1).text())
+            target_instances_names = [self.table_widget.item(row, 1).text()
+                                      for row in range(self.table_widget.rowCount())
+                                      if self.table_widget.cellWidget(row, 0).isChecked()]
 
             if not target_instances_names:
-                QMessageBox.warning(self.page_widget, "Warning", "No instances selected. Please select at least one instance.")
+                QMessageBox.warning(self.page_widget, "Warning",
+                                    "No instances selected. Please select at least one instance.")
                 return
 
-            target_instances = []
-            for name in target_instances_names:
-                instance = self.openstack.conn.compute.find_server(name)
-                if instance:
-                    target_instances.append(instance)
-
+            target_instances = [self.openstack.conn.compute.find_server(name) for name in target_instances_names]
             self.ans_management.rewrite_inventory_file(self.ans_management.get_inventory(), target_instances)
-            result = self.ans_management.run_ansible_file(target_script, self.ans_management.get_inventory(), self.ans_management.get_private_key_file())
-            self.display_ansible_output(result)
+
+            success_instances = []
+            failed_instances = []
+
+            for instance in target_instances:
+                floating_ip = self.ans_management.get_floating_ip_of_instance(instance.id)
+                if not floating_ip:
+                    failed_instances.append((instance.name, "No floating IP assigned"))
+                    continue
+
+                output_buffer = io.StringIO()
+                with contextlib.redirect_stdout(output_buffer):
+                    try:
+                        self.ans_management.run_ansible_file(target_script, self.ans_management.get_inventory(),
+                                                             self.ans_management.get_private_key_file())
+                        captured_output = output_buffer.getvalue()
+                        if "fatal" in captured_output or "failed" in captured_output:
+                            failed_instances.append((instance.name, "Ansible script failed"))
+                        else:
+                            success_instances.append(instance.name)
+                    except subprocess.CalledProcessError as e:
+                        captured_output = output_buffer.getvalue()
+                        failed_instances.append((instance.name, str(e)))
+
             self.ans_management.delete_file_content(self.ans_management.get_inventory())
+
+            self.display_results(success_instances, failed_instances)
+
         except Exception as e:
-            print(f"An error occurred: {e}")
             QMessageBox.critical(self.page_widget, "Error", f"An error occurred: {e}")
 
-    def display_ansible_output(self, result):
-        self.textBrowser_output.clear()
-        if isinstance(result, str):
-            self.textBrowser_output.append(result)
+    def display_results(self, success_instances, failed_instances):
+        if not failed_instances:
+            result_msg = "All instances executed the Ansible script successfully."
         else:
-            for line in result.stdout:
-                self.textBrowser_output.append(line)
+            result_msg = "The Ansible script failed for the following instances:\n"
+            for instance, reason in failed_instances:
+                result_msg += f"{instance}: {reason}\n"
 
-
-# Example usage in your script
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = InstancePage(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        msg_box = QMessageBox(self.page_widget)
+        msg_box.setWindowTitle("Ansible Script Results")
+        msg_box.setText(result_msg)
+        msg_box.exec_()
+    def refresh_instances_table(self):
+        self.list_of_instances = self.openstack.list_All_VM()
+        self.table_widget.setRowCount(len(self.list_of_instances))
+        for row, VM in enumerate(self.list_of_instances):
+            checkbox = QCheckBox()
+            self.table_widget.setCellWidget(row, 0, checkbox)
+            self.table_widget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(VM.name)))

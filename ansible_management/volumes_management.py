@@ -62,7 +62,7 @@ class Volumes_Management(Openstack_images_info):
         if self.has_attached_volumes(vm_id):
             return self.image_data[self.get_volume_image_id(vm_id)]
         else:
-            instance = self.conn.compute.get_server(vm_id)  #self.conn.compute.get_server(vm_id)
+            instance = self.conn.compute.get_server(vm_id)
             image_id = instance.image['id']
             return self.image_data[image_id]
 

@@ -47,9 +47,7 @@ class openstack_network_operations(OpenstackConnect):
         else:
             print("It didn't find the network")
 
-    #
-    #   Functions for listing external netwroks
-    #
+
 
     def list_external_netwroks(self):
         external_networks = []
@@ -58,9 +56,6 @@ class openstack_network_operations(OpenstackConnect):
                 external_networks.append(network)
         return external_networks
 
-    #
-    #   Functions for routers
-    #
 
     def list_routers(self):
          router=[rout for rout in self.conn.network.routers()]
@@ -167,13 +162,3 @@ class openstack_network_operations(OpenstackConnect):
         else:
             print("Router '{}' or network '{}' not found.".format(router_name, network_name))
 
-
-
-#network_operations.create_network("Dummy Network__v3","Dumy Test",subnet_name="subnet_1",subnet_cidr="192.168.1.0/24")
-
-#network_operations.delete_network("Dummy Network")
-#network_operations.create_router("Dummy network")
-#network_operations.delete_router("Dummy network")
-#network_operations.create_network("Dummy Network","Dumy Test")
-#network_operations.create_router("Dummy Router","5abea629-f544-4811-b374-b45022590f1b")
-#network_operations.connect_router_to_network("Dummy Router","Dummy Network__v3")

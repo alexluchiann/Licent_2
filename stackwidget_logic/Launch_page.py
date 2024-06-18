@@ -30,7 +30,6 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         self.setup_spinBox()
         self.Launch_instances_btn.clicked.connect(self.launche_instances)
 
-
     def load_network_table(self):
         column_headers = ['Check', 'Network Name', 'Is external Network']
         net = [network.name for network in self.opn_net.network_list]
@@ -70,16 +69,17 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         return None
 
     def load_flavor_table(self):
-        column_headers = ['Check', 'Flavor Name', 'VCPUS', 'Size']
+        column_headers = ['Check', 'Flavor Name', 'VCPUS', 'RAM', 'Disk']
         flavors = self.opn_img_info.flavors_list
 
         self.table_flavor.setRowCount(len(flavors))
         self.table_flavor.setColumnCount(len(column_headers))
         self.table_flavor.setHorizontalHeaderLabels(column_headers)
         self.table_flavor.setColumnWidth(0, 45)
-        self.table_flavor.setColumnWidth(1, 350)
+        self.table_flavor.setColumnWidth(1, 150)
         self.table_flavor.setColumnWidth(2, 100)
         self.table_flavor.setColumnWidth(3, 100)
+        self.table_flavor.setColumnWidth(4, 100)
 
         self.flavor_checkboxes = []
 
@@ -91,6 +91,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
             self.table_flavor.setItem(row, 1, QTableWidgetItem(flavor[0]))
             self.table_flavor.setItem(row, 2, QTableWidgetItem(str(flavor[1])))
             self.table_flavor.setItem(row, 3, QTableWidgetItem(str(flavor[2])))
+            self.table_flavor.setItem(row, 4, QTableWidgetItem(str(flavor[3])))
             self.flavor_checkboxes.append(checkbox)
 
     def on_flavor_checkbox_state_change(self, state):
@@ -116,7 +117,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         self.table_Imagess.setColumnWidth(0, 45)
         self.table_Imagess.setColumnWidth(1, 250)
         self.table_Imagess.setColumnWidth(2, 200)
-        self.table_Imagess.setColumnWidth(3, 50)
+        self.table_Imagess.setColumnWidth(3, 100)
 
         self.image_checkboxes = []
 
@@ -145,13 +146,19 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
                 return self.table_Imagess.item(row, 1).text()
         return None
 
-
     def setup_spinBox(self):
         nr_vm = self.opn_con.number_of_vm()
         if nr_vm >= 10:
-            self.spinBox.setRange(0,0)
+            self.spinBox.setRange(0, 0)
         else:
-            self.spinBox.setRange(1,10 - nr_vm)
+            self.spinBox.setRange(1, 10 - nr_vm)
+
+    def convert_size_to_mb(self, size_str):
+        size, unit = size_str.split()
+        size = float(size)
+        if unit == 'GB':
+            size *= 1024
+        return int(size)
 
     def launche_instances(self):
         name = self.instances_name.text()
@@ -170,13 +177,36 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         if not network:
             error_message += "Network is required.\n"
 
+        flavor_disk_size = None
+        image_size = None
+        for row in range(self.table_flavor.rowCount()):
+            if self.table_flavor.item(row, 1).text() == flavor:
+                flavor_disk_size_str = self.table_flavor.item(row, 4).text()
+                flavor_disk_size = self.convert_size_to_mb(flavor_disk_size_str)
+                break
+        for row in range(self.table_Imagess.rowCount()):
+            if self.table_Imagess.item(row, 1).text() == image:
+                image_size_str = self.table_Imagess.item(row, 3).text()
+                image_size = self.convert_size_to_mb(image_size_str)
+                break
+
+        if flavor_disk_size is not None and image_size is not None and flavor_disk_size < image_size:
+            error_message += f"Flavor's disk size ({flavor_disk_size} MB) is too small for the requested image ({image_size} MB).\n"
+
         if error_message:
             QMessageBox.critical(self, "Error", error_message)
         else:
             for inst in range(self.spinBox.value()):
-                self.opn_con.add_node(name, flavor, image, network, description=desc if desc else None)
-            self.close()
+                try:
+                    instance = self.opn_con.add_node(name, flavor, image, network, description=desc if desc else None)
+                    if instance:
+                        self.opn_con.associate_floating_ip(instance)
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", str(e))
+                    return
 
+            QMessageBox.information(self, "Success", "Instances launched and floating IPs associated successfully!")
+            self.close()
 
 
 if __name__ == "__main__":

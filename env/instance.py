@@ -1,12 +1,11 @@
 import openstack
-
-
+import subprocess
 class OpenstackConnect:
     def __init__(self):
 
         self.conn = openstack.connect(cloud='openstack')
 
-        self.keypair = 'licenta'
+        self.keypair = 'licenta_2'
         self.list_images = list(self.conn.image.images())
         self.list_flavors = list(self.conn.list_flavors())
         self.list_networks = list(self.conn.network.networks())
@@ -54,55 +53,70 @@ class OpenstackConnect:
         if name in existing_names:
             name = generate_new_name(name)
 
+        flavor = self.conn.compute.find_flavor(flavor_id)
+        if flavor is None:
+            print(f"Flavor '{flavor_id}' not found")
+            return
+
+        image = self.conn.image.find_image(image_id)
+        if image is None:
+            print(f"Image '{image_id}' not found")
+            return
+
         try:
-            print(network.name)
             server = self.conn.compute.create_server(
                 name=name,
-                flavor_id=self.conn.compute.find_flavor(flavor_id).id,
-                image_id=self.conn.image.find_image(image_id).id,
+                flavor_id=flavor.id,
+                image_id=image.id,
                 networks=[{"uuid": network.id}],
                 key_name=self.keypair,
                 security_groups=[{"name": "default"}],
                 description=description
             )
-            print(f"Name of the server is {name}")
+            print(f"Server '{name}' created successfully")
 
         except Exception as e:
-            print("An error occurred while creating the server", e)
+            print("An error occurred while creating the server:", e)
 
-
-    def create_floating_ip(self, network_name):
+    def create_floating_ip(self, network_name='public'):
         try:
-            network = None
-            for net in self.list_networks:
-                if net.name == network_name:
-                    network = net
-                    break
+            network = next((net for net in self.conn.network.networks()
+                            if net.name == network_name and net.is_router_external),None)
+            print(network.name)
 
             if network is None:
-                print("Network {} not found".format(network_name))
-                return
+                print(f"Network {network_name} not found or is not an external network")
+                return None
 
             floating_ip = self.conn.network.create_ip(floating_network_id=network.id)
-            print("Floating IP {} created for network {}".format(floating_ip.floating_ip_address, network_name))
+            print(f"Floating IP {floating_ip.floating_ip_address} created for network {network_name}")
             return floating_ip
         except Exception as e:
             print("Failed to create floating IP:", e)
+            return None
 
-    #
-    #   NU merge / NU stiu cum sa fac /
-    #
-    def associate_floating_ip_(self, instance_name):
+    def associate_floating_ip(self, instance_name):
+        instance = next((server for server in self.conn.compute.servers() if server.name == instance_name), None)
 
-        instance = None
-        for inst in self.list_All_VM():
-            if inst.name == instance_name:
-                instance = inst
-                break
-        print(inst.name)
+        if not instance:
+            print(f"Instance {instance_name} not found")
+            return None
 
-        ip_avabil=self.conn.network.find_available_ip()
-        print("The avalibele network is {} ".format(ip_avabil))
+        floating_ip = next((ip for ip in self.conn.network.ips() if not ip.fixed_ip_address), None)
+        if not floating_ip:
+            floating_ip = self.create_floating_ip()
+            if not floating_ip:
+                print("Failed to create or find a floating IP")
+                return
+
+        rc_file_path = "/home/alex/Licenta_2024/OpenStack_v2/app-cred-licenta-openrc\\(3\\).sh"
+        command = f"source {rc_file_path} && openstack server add floating ip {instance.id} {floating_ip.floating_ip_address}"
+
+        try:
+            result = subprocess.run(command, shell=True, check=True, text=True, executable="/bin/bash")
+            print(f"Output: {result.stdout}")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred while associating the floating IP: {e.stderr}")
 
     def get_image_update_date(self, image_name):
         image = self.conn.image.find_image(image_name)
@@ -112,10 +126,12 @@ class OpenstackConnect:
             return "Image not found"
 
     def list_floating_ips(self):
-        floatin_ips=[]
-        floating_ips = self.conn.network.ips()
-        for ips in floating_ips:
-            print(str(ips.floating_ip_address) + "      " + str(ips.fixed_ip_address))
-            floatin_ips.append(ips.floating_ip_address)
-        return floatin_ips
+        floating_ips = []
+        for ip in self.conn.network.ips():
+            print(str(ip.floating_ip_address))
+            floating_ips.append(ip.floating_ip_address)
+        return floating_ips
 
+
+app = OpenstackConnect()
+app.associate_floating_ip('ipipip_1-2')
