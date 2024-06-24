@@ -4,6 +4,7 @@ import subprocess
 from volumes_management import Volumes_Management
 from openstack_images_info import Openstack_images_info
 
+
 class ansible_management(Volumes_Management):
     def __init__(self):
         self.image_info = Openstack_images_info()
@@ -41,12 +42,15 @@ class ansible_management(Volumes_Management):
                 file.write(f"{node[3]} ansible_user={node[2]}\n")
 
     def run_ansible_file(self, playbook_path, inventory_path, private_key_path):
-            subprocess.run([
-                'ansible-playbook',
-                playbook_path,
-                '-i', inventory_path,
-                '--private-key', private_key_path
-            ], check=True)
+        env = os.environ.copy()
+        env['ANSIBLE_HOST_KEY_CHECKING'] = 'False'
+
+        subprocess.run([
+            'ansible-playbook',
+            playbook_path,
+            '-i', inventory_path,
+            '--private-key', private_key_path
+        ], check=True,env=env)
 
     def delete_file_content(self, input_file):
         with open(input_file, 'r') as f:

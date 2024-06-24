@@ -28,7 +28,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         self.load_flavor_table()
         self.load_images_table()
         self.setup_spinBox()
-        self.Launch_instances_btn.clicked.connect(self.launche_instances)
+        self.Launch_instances_btn.clicked.connect(self.launch_instances)
 
     def load_network_table(self):
         column_headers = ['Check', 'Network Name', 'Is external Network']
@@ -160,7 +160,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
             size *= 1024
         return int(size)
 
-    def launche_instances(self):
+    def launch_instances(self):
         name = self.instances_name.text()
         flavor = self.get_selected_flavor()
         image = self.get_selected_image()
@@ -200,7 +200,8 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
                 try:
                     instance = self.opn_con.add_node(name, flavor, image, network, description=desc if desc else None)
                     if instance:
-                        self.opn_con.associate_floating_ip(instance)
+                        self.opn_con.associate_floating_ip(instance.name)
+
                 except Exception as e:
                     QMessageBox.critical(self, "Error", str(e))
                     return
