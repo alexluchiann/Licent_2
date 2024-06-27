@@ -98,3 +98,5 @@ class Openstack_images_info(OpenstackConnect):
             names.append(im_name.id)
         return names
 
+
+

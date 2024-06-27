@@ -33,7 +33,7 @@ class Logic_Gui(QMainWindow, Ui_MainWindow):
 
         # Instance Management
         self.Instance_Peg = InstancePage(self.stackedWidget, self.page_25, self.Ansible_Layout_btn,
-                                         self.tableWidget_management, self.tableWidget_management_Ansible, self.comboBox_Scripts, self.output_label)
+                                         self.tableWidget_management, self.tableWidget_management_Ansible, self.comboBox_Scripts)
         self.show_instances_management_btn.clicked.connect(self.show_instances_management)
         self.Delete_instance_btn_5.clicked.connect(self.Instance_Peg.delete_checked_lines_instances)
         self.Delete_All_instances_management_btn_2.clicked.connect(self.Instance_Peg.delete_checked_lines_instances)

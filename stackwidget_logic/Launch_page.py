@@ -1,6 +1,6 @@
 import os
 import sys
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QTableWidget, QCheckBox, QTableWidgetItem, QMessageBox
 
 # Adjusting the system path to include necessary directories
@@ -32,8 +32,15 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
 
     def load_network_table(self):
         column_headers = ['Check', 'Network Name', 'Is external Network']
-        net = [network.name for network in self.opn_net.network_list]
-        external_network_names = [network.name for network in self.opn_net.list_external_netwroks()]
+        net = self.opn_net.network_list  # This should be a list of network objects with a 'name' attribute
+        print(f"net: {net}")  # Debug: Print the list of networks
+        external_network_names = []
+        for network in self.opn_net.list_external_netwroks():
+            if isinstance(network, str):
+                external_network_names.append(network)
+            else:
+                external_network_names.append(network.name)
+        print(f"external_network_names: {external_network_names}")  # Debug: Print the list of external network names
 
         self.table_network.setRowCount(len(net))
         self.table_network.setColumnCount(len(column_headers))
@@ -45,11 +52,12 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
         self.network_checkboxes = []
 
         # Populate the table
-        for row, network_name in enumerate(net):
+        for row, network in enumerate(net):
             self.table_network.setRowHeight(row, 40)
             checkbox = QCheckBox()
             checkbox.stateChanged.connect(self.on_network_checkbox_state_change)
             self.table_network.setCellWidget(row, 0, checkbox)
+            network_name = network if isinstance(network, str) else network.name
             self.table_network.setItem(row, 1, QTableWidgetItem(network_name))
             rez = 'Yes' if network_name in external_network_names else 'No'
             self.table_network.setItem(row, 2, QTableWidgetItem(rez))
@@ -71,6 +79,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
     def load_flavor_table(self):
         column_headers = ['Check', 'Flavor Name', 'VCPUS', 'RAM', 'Disk']
         flavors = self.opn_img_info.flavors_list
+        print(f"flavors: {flavors}")  # Debug: Print the list of flavors
 
         self.table_flavor.setRowCount(len(flavors))
         self.table_flavor.setColumnCount(len(column_headers))
@@ -110,6 +119,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
     def load_images_table(self):
         column_headers = ['Check', 'Image Name', 'Updated', 'Size']
         images = self.opn_img_info.os_data
+        print(f"images: {images}")  # Debug: Print the list of images
 
         self.table_Imagess.setRowCount(len(images))
         self.table_Imagess.setColumnCount(len(column_headers))
@@ -200,7 +210,7 @@ class Launch_instance(QtWidgets.QMainWindow, Ui_Launch_instances):
                 try:
                     instance = self.opn_con.add_node(name, flavor, image, network, description=desc if desc else None)
                     if instance:
-                        self.opn_con.associate_floating_ip(instance.name)
+                        self.opn_con.associate_floating_ip(instance)
 
                 except Exception as e:
                     QMessageBox.critical(self, "Error", str(e))

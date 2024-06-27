@@ -1,6 +1,5 @@
 import os
 import subprocess
-
 from volumes_management import Volumes_Management
 from openstack_images_info import Openstack_images_info
 
@@ -91,3 +90,17 @@ class ansible_management(Volumes_Management):
             print(f"File {target} was deleted ")
         else:
             print("Nu functioneaza")
+
+    def get_scripts_descriptions(self):
+        descriptions_path = os.path.join(self.get_right_path(), 'scripts_descriptions.txt')
+        scripts_descriptions = []
+
+        if os.path.exists(descriptions_path):
+            with open(descriptions_path, 'r') as f:
+                for line in f:
+                    parts = line.strip().split('   ', 1)
+                    if len(parts) == 2:
+                        script_name, script_description = parts
+                        scripts_descriptions.append((script_name, script_description))
+
+        return scripts_descriptions

@@ -1,0 +1,14 @@
+---
+- name: Install Java 17 on Redhat-based systems
+  hosts: openstack_instances
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      yum:
+        update_cache: yes
+
+    - name: Install OpenJDK 17
+      yum:
+        name: openjdk-17-jdk
+        state: present

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1485, 899)
+        MainWindow.resize(1593, 909)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.icon_only_widget = QtWidgets.QWidget(self.centralwidget)
@@ -108,8 +108,7 @@ class Ui_MainWindow(object):
         self.Launch_instance_btn_17 = QtWidgets.QPushButton(self.Instances_Pages_5)
         self.Launch_instance_btn_17.setGeometry(QtCore.QRect(1060, 120, 151, 41))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/Icons/"
-                                      "\icons8-upload-to-cloud-48.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/Icons/icons8-upload-to-cloud-48.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Launch_instance_btn_17.setIcon(icon5)
         self.Launch_instance_btn_17.setObjectName("Launch_instance_btn_17")
         self.Delete_instance_btn_33 = QtWidgets.QPushButton(self.Instances_Pages_5)
@@ -431,12 +430,6 @@ class Ui_MainWindow(object):
         self.Delete_All_scripts_management_btn_3.setGeometry(QtCore.QRect(690, 40, 171, 41))
         self.Delete_All_scripts_management_btn_3.setIcon(icon8)
         self.Delete_All_scripts_management_btn_3.setObjectName("Delete_All_scripts_management_btn_3")
-        self.output_label = QtWidgets.QLabel(self.page_33)
-        self.output_label.setGeometry(QtCore.QRect(120, 410, 741, 321))
-        self.output_label.setStyleSheet("\n"
-"background-color: rgb(255, 255, 255);")
-        self.output_label.setText("")
-        self.output_label.setObjectName("output_label")
         self.stackedWidget_24.addWidget(self.page_33)
         self.page_34 = QtWidgets.QWidget()
         self.page_34.setObjectName("page_34")
@@ -469,7 +462,7 @@ class Ui_MainWindow(object):
         self.tableWidget_management.setColumnCount(0)
         self.tableWidget_management.setRowCount(0)
         self.tableWidget_management_Ansible = QtWidgets.QTableWidget(self.Networks_7)
-        self.tableWidget_management_Ansible.setGeometry(QtCore.QRect(0, 500, 611, 331))
+        self.tableWidget_management_Ansible.setGeometry(QtCore.QRect(0, 500, 1411, 331))
         self.tableWidget_management_Ansible.setObjectName("tableWidget_management_Ansible")
         self.tableWidget_management_Ansible.setColumnCount(0)
         self.tableWidget_management_Ansible.setRowCount(0)
@@ -1241,7 +1234,7 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.page)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1485, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1593, 22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -1249,7 +1242,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(3)
         self.stackedWidget_17.setCurrentIndex(3)
         self.stackedWidget_18.setCurrentIndex(0)
         self.stackedWidget_19.setCurrentIndex(1)

@@ -1,0 +1,39 @@
+---
+- name: Install Java on Amazon Linux
+  hosts:
+  become: yes
+  tasks:
+    - name: Install Java
+      yum:
+        name: java-1.8.0-openjdk
+        state: present
+
+
+- name: Install Jenkins on target machines
+  hosts: openstack_instances
+  become: yes  # Ensures the tasks are executed with root privileges
+  tasks:
+    - name: Add Jenkins repository to the system
+      apt_repository:
+        repo: 'deb http://pkg.jenkins.io/debian-stable binary/'
+        state: present
+
+    - name: Import Jenkins repository GPG keys
+      apt_key:
+        url: 'https://pkg.jenkins.io/debian-stable/jenkins.io.key'
+        state: present
+
+    - name: Update the package index
+      apt:
+        update_cache: yes
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+        enabled: yes

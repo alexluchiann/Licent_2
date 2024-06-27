@@ -151,3 +151,40 @@ class OpenstackConnect:
         for ip in floating_ips:
             print(ip)
         return floating_ips
+
+    def get_instance_ips(self, instance_name):
+        instance = next((server for server in self.conn.compute.servers() if server.name == instance_name), None)
+        if not instance:
+            print(f"Instance {instance_name} not found")
+            return None, None
+
+        private_ip = None
+        floating_ip = None
+
+        for network_name, addresses in instance.addresses.items():
+            for address in addresses:
+                if address['OS-EXT-IPS:type'] == 'fixed':
+                    private_ip = address['addr']
+                elif address['OS-EXT-IPS:type'] == 'floating':
+                    floating_ip = address['addr']
+
+        if not private_ip:
+            print(f"Instance {instance_name} does not have a private IP address.")
+        if not floating_ip:
+            print(f"Instance {instance_name} does not have a floating IP address.")
+
+        return private_ip, floating_ip
+
+    def get_instance_flavor(self, instance_name):
+        instance = next((server for server in self.conn.compute.servers() if server.name == instance_name), None)
+        if not instance:
+            print(f"Instance {instance_name} not found")
+            return None
+
+        flavor_id = instance.flavor['id']
+        flavor = self.conn.compute.find_flavor(flavor_id)
+        if flavor:
+            return flavor.name
+        else:
+            print(f"Flavor {flavor_id} not found")
+            return None

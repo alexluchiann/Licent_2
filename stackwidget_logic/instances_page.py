@@ -14,11 +14,11 @@ from base_class import BaseClassGui
 
 class InstancePage(BaseClassGui):
 
-    def __init__(self, stackedWidget, page_widget, button_widget, table_widget, table_widget_2, combo_box, output_label):
+    def __init__(self, stackedWidget, page_widget, button_widget, table_widget, table_widget_2, combo_box):
         super().__init__(stackedWidget, page_widget, button_widget, table_widget)
         self.table_widget_2 = table_widget_2
         self.combo_box = combo_box
-        self.output_label = output_label
+
         self.ans_management = ansible_management()
         self.populate_combo_box()
 
@@ -40,14 +40,23 @@ class InstancePage(BaseClassGui):
             checkbox = QCheckBox()
             self.table_widget.setCellWidget(row, 0, checkbox)
             self.table_widget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(
+                str(self.ans_management.get_os_with_instance_id(VM.id))))
+            private_ip, float_ip = self.openstack.get_instance_ips(VM.name)
+            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem("{} /{}".format(private_ip, float_ip)))
+            flavor_name = self.openstack.get_instance_flavor(VM.name)
+            flavor_info = next((flavor for flavor in self.ans_management.flavors_list if flavor[0] == flavor_name),
+                               None)
+            if flavor_info:
+                flavor_text = "{} - vCPUs: {}, RAM: {}, Disk: {}".format(flavor_info[0], flavor_info[1], flavor_info[2],
+                                                                         flavor_info[3])
+            else:
+                flavor_text = "Flavor not found"
+            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(flavor_text))
 
     def populate_table_2(self):
         columns_headers_2 = ['Check', 'Playbook name', 'Description']
-        playbooks = self.ans_management.get_ansible_playbooks_files()
-        self.table_widget_2.setRowCount(len(playbooks))
+        self.table_widget_2.setRowCount(0)
         self.table_widget_2.setColumnCount(len(columns_headers_2))
         self.table_widget_2.setHorizontalHeaderLabels(columns_headers_2)
 
@@ -55,10 +64,18 @@ class InstancePage(BaseClassGui):
         self.table_widget_2.setColumnWidth(1, 450)
         self.table_widget_2.setColumnWidth(2, 910)
 
-        for row, playbook in enumerate(playbooks):
+        scripts_descriptions = self.ans_management.get_scripts_descriptions()
+        scripts_dict = {name: desc for name, desc in scripts_descriptions}
+
+        playbooks = self.ans_management.get_ansible_playbooks_files()
+
+        for row, script_name in enumerate(playbooks):
+            script_description = scripts_dict.get(script_name, "No description available")
+            self.table_widget_2.insertRow(row)
             checkbox = QCheckBox()
             self.table_widget_2.setCellWidget(row, 0, checkbox)
-            self.table_widget_2.setItem(row, 1, QtWidgets.QTableWidgetItem(str(playbook)))
+            self.table_widget_2.setItem(row, 1, QtWidgets.QTableWidgetItem(str(script_name)))
+            self.table_widget_2.setItem(row, 2, QtWidgets.QTableWidgetItem(str(script_description)))
 
     def delete_checked_lines_instances(self):
         rows_to_delete = [row for row in range(self.table_widget.rowCount())
@@ -132,7 +149,23 @@ class InstancePage(BaseClassGui):
             file_names = file_dialog.selectedFiles()
             for file in file_names:
                 if file.endswith(('.yml', '.yaml')):
-                    shutil.copy(file, self.ans_management.get_right_path())
+                    # Prompt for script description
+                    script_description, ok_desc = QtWidgets.QInputDialog.getText(
+                        self.page_widget, 'Script Description', 'Enter the description of the script:')
+
+                    if ok_desc and script_description:
+                        shutil.copy(file, self.ans_management.get_right_path())
+
+                        # Use the filename as the script name
+                        script_name = os.path.basename(file)
+
+                        # Write script name and description to the file
+                        with open(os.path.join(self.ans_management.get_right_path(), 'scripts_descriptions.txt'),
+                                  'a') as desc_file:
+                            desc_file.write(f"{script_name}   {script_description}\n")
+
+                        print(f"Script {script_name} added with description: {script_description}")
+
             return file_names
         return []
 
@@ -206,13 +239,35 @@ class InstancePage(BaseClassGui):
         msg_box.setWindowTitle("Ansible Script Results")
         msg_box.setText(result_msg)
         msg_box.exec_()
+
     def refresh_instances_table(self):
         self.list_of_instances = self.openstack.list_All_VM()
+        columns_headers = ['Check', 'Name', 'Operating System', 'IP Address', 'Flavor']
         self.table_widget.setRowCount(len(self.list_of_instances))
-        for row, VM in enumerate(self.list_of_instances):
+        self.table_widget.setColumnCount(len(columns_headers))
+        self.table_widget.setHorizontalHeaderLabels(columns_headers)
+
+        self.table_widget.setColumnWidth(0, 45)
+        for col, header in enumerate(columns_headers):
+            self.table_widget.setColumnWidth(col + 1, 350)
+
+        for row in range(len(self.list_of_instances)):
+            self.table_widget.setRowHeight(row, 40)
+
+        for row, VM in enumerate(self.list_of_instances[::-1]):
             checkbox = QCheckBox()
             self.table_widget.setCellWidget(row, 0, checkbox)
             self.table_widget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(VM.name)))
-            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(VM.name)))
+            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(
+                str(self.ans_management.get_os_with_instance_id(VM.id))))
+            private_ip, float_ip = self.openstack.get_instance_ips(VM.name)
+            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem("{} /{}".format(private_ip, float_ip)))
+            flavor_name = self.openstack.get_instance_flavor(VM.name)
+            flavor_info = next((flavor for flavor in self.ans_management.flavors_list if flavor[0] == flavor_name),
+                               None)
+            if flavor_info:
+                flavor_text = "{} - vCPUs: {}, RAM: {}, Disk: {}".format(flavor_info[0], flavor_info[1], flavor_info[2],
+                                                                         flavor_info[3])
+            else:
+                flavor_text = "Flavor not found"
+            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(flavor_text))
